@@ -1,7 +1,7 @@
-import java.util.concurrent.locks;
+import java.util.concurrent.locks.*;
 
 public class ListaCapacidades {
 
     private Lock lock;
-    private Array<int> capacidade;
+    private int capacidade[];
 }
