@@ -2,7 +2,7 @@ import java.util.concurrent.locks.*;
 
 public class ListaVoos {
 
-    private Lock lock;
+    private ReentrantLock lock;
     private Voo voos[];
 
 }
