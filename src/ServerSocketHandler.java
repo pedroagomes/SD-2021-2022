@@ -18,7 +18,7 @@ public class ServerSocketHandler implements Runnable {
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-            Boolean notAuth = true;
+            boolean notAuth = true;
 
             while(notAuth){
                 System.out.println("Não Autenticado!");
@@ -26,7 +26,7 @@ public class ServerSocketHandler implements Runnable {
                 input[0] = in.readUTF();
                 input[1] = in.readUTF();
 
-                if(userMap.get(input[0]) == input[1]){
+                if(userMap.get(input[0]).equals(input[1])){
                     notAuth = false;
                 }
             }
