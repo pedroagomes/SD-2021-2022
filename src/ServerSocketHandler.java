@@ -1,13 +1,11 @@
 import java.io.*;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ServerSocketHandler implements Runnable {
     private Socket socket;
-    public HashMap<String,String> userMap;
+    public MapUsers userMap;
 
-    public ServerSocketHandler(Socket socket, HashMap<String,String> usrMap){
+    public ServerSocketHandler(Socket socket, MapUsers usrMap){
         this.socket = socket;
         this.userMap = usrMap;
     }
