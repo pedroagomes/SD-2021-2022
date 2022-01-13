@@ -11,16 +11,15 @@ public class Servidor {
         HashMap<String,String> usrMap = new HashMap<>();
 
         try {
-            File myObj = new File(filename);
-            Scanner myReader = new Scanner(myObj);
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
+            File usrPwd = new File(filename);
+            Scanner scanner = new Scanner(usrPwd);
+            while (scanner.hasNextLine()) {
+                String data = scanner.nextLine();
                 String[] keyValue = data.split("-");
                 usrMap.put(keyValue[0],keyValue[1]);
             }
-            myReader.close();
+            scanner.close();
         } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
             e.printStackTrace();
         }
 

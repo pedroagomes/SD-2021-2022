@@ -15,22 +15,23 @@ public class ServerSocketHandler implements Runnable {
     @Override
     public void run(){
         try {
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            DataInputStream inStrm = new DataInputStream(socket.getInputStream());
+            DataOutputStream outStrm = new DataOutputStream(socket.getOutputStream());
 
             boolean notAuth = true;
 
             while(notAuth){
-                System.out.println("Não Autenticado!");
                 String[] input = new String[2];
-                input[0] = in.readUTF();
-                input[1] = in.readUTF();
+                input[0] = inStrm.readUTF();
+                input[1] = inStrm.readUTF();
 
-                if(userMap.get(input[0]).equals(input[1])){
+                if(userMap.get(input[0]) != null && userMap.get(input[0]).equals(input[1])){
                     notAuth = false;
                 }
+
+                outStrm.writeBoolean(notAuth);
+                outStrm.flush();
             }
-            System.out.println("Auntenticado!");
         }
         catch (IOException e){
             e.printStackTrace();
