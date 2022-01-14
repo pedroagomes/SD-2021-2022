@@ -3,6 +3,7 @@ import java.net.Socket;
 
 public class ServerSocketHandler implements Runnable {
     private Socket socket;
+    private String user;
     public MapUsers userMap;
 
     public ServerSocketHandler(Socket socket, MapUsers usrMap){
@@ -25,6 +26,7 @@ public class ServerSocketHandler implements Runnable {
 
                 if(userMap.get(input[0]) != null && userMap.get(input[0]).equals(input[1])){
                     notAuth = false;
+                    user = input[0];
                 }
 
                 outStrm.writeBoolean(notAuth);
