@@ -37,7 +37,7 @@ public class Menu {
         return "--------- Menu Admin ---------\n" +
                "1) Inserir Novo Voo\n" +
                "2) Encerrar Dia\n" +
-               "3) Sair\n";
+               "3) Sair";
     }
 
     public static String menuInserirVoo(){
@@ -46,8 +46,7 @@ public class Menu {
     }
 
     public static String menuEncerrarDia(){
-        return "0;" +
-               "------- Encerrar Dia -------\n" +
+        return "------- Encerrar Dia -------\n" +
                "1) Sim\n" +
                "2) Nao";
     }

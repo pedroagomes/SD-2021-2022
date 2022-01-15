@@ -3,6 +3,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Servidor {
+    private static MapCapacidades capacidadeMap = new MapCapacidades();
+    private static MapReservas reservaMap = new MapReservas();
     private static MapUsers userMap = new MapUsers("TextFiles\\usrList.txt");
 
     public static void main(String[] args){
@@ -13,7 +15,7 @@ public class Servidor {
             while(true){
                 Socket socket = ssocket.accept();
 
-                Thread thread = new Thread(new ServerSocketHandler(socket,userMap));
+                Thread thread = new Thread(new ServerSocketHandler(socket,capacidadeMap, reservaMap, userMap));
                 thread.start();
             }
 

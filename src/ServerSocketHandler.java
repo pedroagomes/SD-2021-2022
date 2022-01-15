@@ -12,8 +12,10 @@ public class ServerSocketHandler implements Runnable {
     private MapReservas reservaMap;
     private MapUsers userMap;
 
-    public ServerSocketHandler(Socket socket, MapUsers usrMap){
+    public ServerSocketHandler(Socket socket, MapCapacidades capacidadeMap, MapReservas reservaMap, MapUsers usrMap){
         this.socket = socket;
+        this.capacidadeMap = capacidadeMap;
+        this.reservaMap = reservaMap;
         this.userMap = usrMap;
     }
 
@@ -26,7 +28,7 @@ public class ServerSocketHandler implements Runnable {
             autenticar(inStrm, outStrm);
 
             if (user.equals("admin")){
-                outStrm.writeBytes(Menu.menuAdmin());
+                menuAdmin(inStrm, outStrm);
             }
             else{
                 menuCliente(inStrm, outStrm);
@@ -66,14 +68,14 @@ public class ServerSocketHandler implements Runnable {
         while (opcao != 5) {
             outStrm.writeUTF(Menu.menuCliente());
             opcao = Integer.parseInt(inStrm.readUTF());
-
             switch (opcao){
-                case 1: menuReservarViagem(inStrm, outStrm);
-                case 2: menuCancelarViagem(inStrm, outStrm);
-                case 3: menuListarVoos(outStrm);
-                case 4: menuCalcularViagem(inStrm, outStrm);
-                case 5: outStrm.writeUTF("LogOff");
+                case 1: menuReservarViagem(inStrm, outStrm); break;
+                case 2: menuCancelarViagem(inStrm, outStrm); break;
+                case 3: menuListarVoos(outStrm); break;
+                case 4: menuCalcularViagem(inStrm, outStrm); break;
+                case 5: outStrm.writeUTF("LogOff"); break;
             }
+            outStrm.flush();
         }
     }
 
@@ -83,7 +85,7 @@ public class ServerSocketHandler implements Runnable {
 
         outStrm.writeUTF(Menu.menuReservarViagem());
         while(communication){
-            outStrm.writeUTF("Voo, indique Origem-Escalas-Destino");
+            outStrm.writeUTF("Indique Origem-Escalas-Destino");
             input[0] = inStrm.readUTF();
             outStrm.writeUTF("Data Inicial, formato AAAA-MM-DD");
             input[1] = inStrm.readUTF();
@@ -93,7 +95,7 @@ public class ServerSocketHandler implements Runnable {
             ArrayList<String> listaVoos = new ArrayList<String>(Arrays.asList(input[0].split("-")));
 
             if (verificaVoos(listaVoos) && verificaData(input[1]) && verificaData(input[2])){
-                int reserva = reservaMap.fazerReserva(listaVoos, LocalDate.parse(input[1]), LocalDate.parse(input[2]));
+                int reserva = reservaMap.fazerReserva(user, listaVoos, LocalDate.parse(input[1]), LocalDate.parse(input[2]));
                 if (reserva != -1){
                     outStrm.writeUTF("0;" + "Reserva Sucedida! Código: " + reserva);
                     communication = false;
@@ -133,10 +135,9 @@ public class ServerSocketHandler implements Runnable {
     }
 
     public void menuListarVoos(DataOutputStream outStrm) throws IOException {
-        String input;
-
         outStrm.writeUTF(Menu.menuListarVoos());
-        System.out.println("0;" + reservaMap.toString());
+        //outStrm.writeUTF("0;" + reservaMap.toString());  FIX THIS
+        outStrm.writeUTF("0;" + "bla\nblah");
     }
 
     public void menuCalcularViagem(DataInputStream inStrm, DataOutputStream outStrm) throws IOException {
@@ -174,9 +175,9 @@ public class ServerSocketHandler implements Runnable {
             opcao = Integer.parseInt(inStrm.readUTF());
 
             switch (opcao){
-                case 1: menuInserirVoo(inStrm, outStrm);
-                case 2: menuEncerrarDia(inStrm, outStrm);
-                case 3: outStrm.writeUTF("LogOff");
+                case 1: menuInserirVoo(inStrm, outStrm); break;
+                case 2: menuEncerrarDia(inStrm, outStrm); break;
+                case 3: outStrm.writeUTF("LogOff"); break;
             }
         }
     }
@@ -213,11 +214,11 @@ public class ServerSocketHandler implements Runnable {
         String input;
         boolean communication = true;
 
-        outStrm.writeUTF(Menu.menuCalcularViagem());
+        outStrm.writeUTF(Menu.menuEncerrarDia());
         while(communication){
             input = inStrm.readUTF();
 
-            if(verificaInt(input)){
+            if(verificaInt(input) && input.equals("1")){
                 if(true) {//reservaMap.encerrarDia();)
                     outStrm.writeUTF("0;" + "Dia Encerrado!");
                     communication = false;
@@ -227,7 +228,12 @@ public class ServerSocketHandler implements Runnable {
                 }
             }
             else {
-                outStrm.writeUTF("0;" + "Erro! Introduza um número.");
+                if (input.equals("2")) {
+                    communication = false;
+                }
+                else{
+                    outStrm.writeUTF("0;" + "Erro! Introduza um número.");
+                }
             }
         }
     }
