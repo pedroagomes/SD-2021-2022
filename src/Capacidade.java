@@ -4,13 +4,14 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Capacidade {
 
     private LocalDate dia;
-    private int capacidade;
+    private int capacidade,maxCapacidade;
     private ReentrantLock lock;
 
-    public Capacidade(LocalDate dia, int capacidade, ReentrantLock lock) {
+    public Capacidade(LocalDate dia, int capacidade, int maxCapacidade) {
         this.dia = dia;
         this.capacidade = capacidade;
-        this.lock = lock;
+        this.maxCapacidade = maxCapacidade;
+        this.lock = new ReentrantLock();
     }
 
     public LocalDate getDia(){
@@ -23,6 +24,43 @@ public class Capacidade {
     }
 
     public void decrementa(){
-        this.capacidade--;
+        try {
+            lock.lock();
+            capacidade--;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void incrementa(){
+        try {
+            lock.lock();
+            capacidade++;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public boolean isFull(){
+        try {
+            lock.lock();
+            if(capacidade < maxCapacidade)
+                return false;
+            return true;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public String toString(){
+        try {
+            lock.unlock();
+            StringBuilder strBldr = new StringBuilder();
+            strBldr.append("{"+this.dia.toString()+";"+this.capacidade+"/"+this.maxCapacidade+"}");
+
+            return strBldr.toString();
+        } finally {
+            lock.unlock();
+        }
     }
 }
