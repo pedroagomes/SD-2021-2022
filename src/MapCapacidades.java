@@ -44,4 +44,21 @@ public class MapCapacidades {
             lock.unlock();
         }
     }
+
+    public String toString(){
+        try {
+            lock.unlock();
+            StringBuilder strBldr = new StringBuilder();
+            strBldr.append("{\n");
+            for(String oriDest : capacidades.keySet()){
+                strBldr.append(oriDest+":\n");
+                strBldr.append(capacidades.get(oriDest).toString()+"\n");
+            }
+            strBldr.append("\n}");
+
+            return strBldr.toString();
+        } finally {
+            lock.unlock();
+        }
+    }
 }

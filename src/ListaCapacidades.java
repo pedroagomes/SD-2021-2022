@@ -37,4 +37,19 @@ public class ListaCapacidades {
             lock.unlock();
         }
     }
+
+    public String toString(){
+        try {
+            lock.unlock();
+            StringBuilder strBldr = new StringBuilder();
+            strBldr.append("{"+this.maxCapacidade+";");
+            for(Capacidade c : this.listaCapacidades)
+                strBldr.append("\n\t"+c.toString());
+            strBldr.append("\n}");
+
+            return strBldr.toString();
+        } finally {
+            lock.unlock();
+        }
+    }
 }

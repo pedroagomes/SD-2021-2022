@@ -99,4 +99,16 @@ public class MapReservas {
             lock.unlock();
         }
     }
+
+    public String toString(){
+        try {
+            lock.unlock();
+            StringBuilder strBldr = new StringBuilder();
+            strBldr.append("{"+contador+";"+diaActual.toString()+";\n"+reservas.toString()+"\n\n"+capacidades.toString()+"}");
+
+            return strBldr.toString();
+        } finally {
+            lock.unlock();
+        }
+    }
 }

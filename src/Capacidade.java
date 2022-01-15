@@ -54,12 +54,9 @@ public class Capacidade {
 
     public String toString(){
         try {
+            lock.unlock();
             StringBuilder strBldr = new StringBuilder();
-            strBldr.append("{"+user+";"+dia.toString()+";");
-            int i;
-            for(i = 0; i < aeroportos.size()-1; i++)
-                strBldr.append(aeroportos.get(i)+" -> ");
-            strBldr.append(aeroportos.get(i)+"}");
+            strBldr.append("{"+this.dia.toString()+";"+this.capacidade+"/"+this.maxCapacidade+"}");
 
             return strBldr.toString();
         } finally {
