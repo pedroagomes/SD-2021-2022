@@ -1,37 +1,47 @@
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLOutput;
 import java.util.Scanner;
 
 public class Cliente {
 
     public static void main(String[] args){
         try {
-            String userName,password;
-            Scanner input = new Scanner(System.in);
             Socket socket = new Socket("localhost",12345);
             DataOutputStream outStrm = new DataOutputStream(socket.getOutputStream());
             DataInputStream inStrm = new DataInputStream(socket.getInputStream());
-            boolean notAuth = true;
 
-            while(notAuth)  {
-                System.out.print("Username: ");
-                userName = input.nextLine();
-                System.out.print("Password: ");
-                password = input.nextLine();
+            communicating(outStrm, inStrm);
 
-                outStrm.writeUTF(userName);
-                outStrm.writeUTF(password);
-                outStrm.flush();
-
-                notAuth = inStrm.readBoolean();
-                if(notAuth){
-                    System.out.println("Auntenticação falhou!");
-                }
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
+    private static void communicating(DataOutputStream outStrm, DataInputStream inStrm) throws IOException {
+        Scanner input = new Scanner(System.in);
+        String info;
+        String[] received;
+        Boolean communication = true;
 
+        while(communication){
+            received = inStrm.readUTF().split(";");
+
+            if (!received[0].equals("0")) {
+                if (!received[0].equals("LogOff")) {
+                    System.out.println(received[0]);
+
+                    info = input.nextLine();
+
+                    outStrm.writeUTF(info);
+                }
+                else {
+                    communication = false;
+                }
+            }
+            else {
+                System.out.println(received[1]);
+            }
+        }
+    }
 }
