@@ -50,12 +50,17 @@ public class ListaVoos {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append(" Origem -> Destino - CapMax");
-        for(int i = 0; i < voos.size();i++){
-            str.append("\n-"+voos.get(i).toString());
+        try {
+            lock.readLock().lock();
+            StringBuilder str = new StringBuilder();
+            str.append(" Origem -> Destino - CapMax");
+            for(int i = 0; i < voos.size(); i++) {
+                str.append("\n-" + voos.get(i).toString());
+            }
+            return str.toString();
+        } finally {
+            lock.readLock().unlock();
         }
-        return str.toString();
     }
 
     public boolean verificaVoos(ArrayList<String> strVoos) {
