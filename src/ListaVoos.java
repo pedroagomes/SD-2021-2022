@@ -47,4 +47,34 @@ public class ListaVoos {
 
         return lVoos;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append(" Origem -> Destino - CapMax");
+        for(int i = 0; i < voos.size();i++){
+            str.append("\n-"+voos.get(i).toString());
+        }
+        return str.toString();
+    }
+
+    public boolean verificaVoos(ArrayList<String> strVoos) {
+        for(int i = 0; i < strVoos.size()-1; i++)
+            if(!this.contains(strVoos.get(i),strVoos.get(i+1)))
+                return false;
+
+        return true;
+    }
+
+    private boolean contains(String origem, String destino){
+        try {
+            lock.readLock().lock();
+            for(int i = 0; i < voos.size(); i++)
+                if(origem.equals(voos.get(i).getOrigem()) && destino.equals(voos.get(i).getDestino()))
+                    return true;
+            return false;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
 }

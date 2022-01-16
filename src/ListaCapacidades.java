@@ -40,7 +40,7 @@ public class ListaCapacidades {
 
     public String toString(){
         try {
-            lock.unlock();
+            lock.lock();
             StringBuilder strBldr = new StringBuilder();
             strBldr.append("{"+this.maxCapacidade+";");
             for(Capacidade c : this.listaCapacidades)

@@ -8,15 +8,15 @@ import java.util.regex.Pattern;
 public class ServerSocketHandler implements Runnable {
     private Socket socket;
     private String user;
-    private MapCapacidades capacidadeMap;
     private MapReservas reservaMap;
     private MapUsers userMap;
+    private ListaVoos listaVoos;
 
-    public ServerSocketHandler(Socket socket, MapCapacidades capacidadeMap, MapReservas reservaMap, MapUsers usrMap){
+    public ServerSocketHandler(Socket socket, MapReservas reservaMap, MapUsers usrMap, ListaVoos listaVoos){
         this.socket = socket;
-        this.capacidadeMap = capacidadeMap;
         this.reservaMap = reservaMap;
         this.userMap = usrMap;
+        this.listaVoos = listaVoos;
     }
 
     @Override
@@ -66,6 +66,7 @@ public class ServerSocketHandler implements Runnable {
     private void menuCliente(DataInputStream inStrm, DataOutputStream outStrm) throws IOException{
         int opcao = -1;
         while (opcao != 5) {
+            System.out.println(reservaMap.toString()+"\n----------------------------------\n");
             outStrm.writeUTF(Menu.menuCliente());
             opcao = Integer.parseInt(inStrm.readUTF());
             switch (opcao){
@@ -75,7 +76,6 @@ public class ServerSocketHandler implements Runnable {
                 case 4: menuCalcularViagem(inStrm, outStrm); break;
                 case 5: outStrm.writeUTF("LogOff"); break;
             }
-            outStrm.flush();
         }
     }
 
@@ -92,10 +92,10 @@ public class ServerSocketHandler implements Runnable {
             outStrm.writeUTF("Data Final, formato AAAA-MM-DD");
             input[2] = inStrm.readUTF();
 
-            ArrayList<String> listaVoos = new ArrayList<String>(Arrays.asList(input[0].split("-")));
+            ArrayList<String> voos = new ArrayList<>(Arrays.asList(input[0].split("-")));
 
-            if (verificaVoos(listaVoos) && verificaData(input[1]) && verificaData(input[2])){
-                int reserva = reservaMap.fazerReserva(user, listaVoos, LocalDate.parse(input[1]), LocalDate.parse(input[2]));
+            if (listaVoos.verificaVoos(voos) && verificaData(input[1]) && verificaData(input[2])){
+                int reserva = reservaMap.fazerReserva(user, voos, LocalDate.parse(input[1]), LocalDate.parse(input[2]));
                 if (reserva != -1){
                     outStrm.writeUTF("0;" + "Reserva Sucedida! Código: " + reserva);
                     communication = false;
@@ -136,8 +136,8 @@ public class ServerSocketHandler implements Runnable {
 
     public void menuListarVoos(DataOutputStream outStrm) throws IOException {
         outStrm.writeUTF(Menu.menuListarVoos());
-        //outStrm.writeUTF("0;" + reservaMap.toString());  FIX THIS
-        outStrm.writeUTF("0;" + "bla\nblah");
+        outStrm.writeUTF("1;");
+        listaVoos.serialize(outStrm);
     }
 
     public void menuCalcularViagem(DataInputStream inStrm, DataOutputStream outStrm) throws IOException {
@@ -151,19 +151,14 @@ public class ServerSocketHandler implements Runnable {
             outStrm.writeUTF("Destino:");
             input[1] = inStrm.readUTF();
 
-            ArrayList<String> listaVoos = new ArrayList<String>(Arrays.asList(input));
+            ArrayList<String> listaVoos = new ArrayList<>(Arrays.asList(input));
 
-            if (verificaVoos(listaVoos)){   //completar
-                if (true){//reservaMap.calculaViagem(listaVoos)) {
-                    outStrm.writeUTF("0;" + "Por fazer, listar voos");
-                    communication = false;
-                }
-                else {
-                    outStrm.writeUTF("0;" + "Erro. Não existem voos para o levar ao seu Destino");
-                }
+            if (true){//reservaMap.calculaViagem(listaVoos)) {
+                outStrm.writeUTF("0;" + "Por fazer, listar voos");
+                communication = false;
             }
             else {
-                outStrm.writeUTF("0;" + "Erro. Origem ou Destino inexistentes");
+                outStrm.writeUTF("0;" + "Erro. Não existem voos para o levar ao seu Destino");
             }
         }
     }
@@ -171,6 +166,7 @@ public class ServerSocketHandler implements Runnable {
     private void menuAdmin(DataInputStream inStrm, DataOutputStream outStrm) throws IOException{
         int opcao = -1;
         while (opcao != 3) {
+            System.out.println(reservaMap.toString()+"\n----------------------------------\n");
             outStrm.writeUTF(Menu.menuAdmin());
             opcao = Integer.parseInt(inStrm.readUTF());
 
@@ -196,16 +192,17 @@ public class ServerSocketHandler implements Runnable {
             input[2] = inStrm.readUTF();
 
             if(verificaInt(input[2])){
-                if (true){//reservaMap.adicionarVoo(input[0], input[1], input[2])){
-                    outStrm.writeUTF("0;" + "Voo Adicionado!");
+                if (reservaMap.novoVoo(input[0]+"-"+input[1], Integer.parseInt(input[2]))){
+                    listaVoos.add(new Voo(input[0],input[1],Integer.parseInt(input[2])));
+                    outStrm.writeUTF("0;" + "Voo Adicionado.");
                     communication = false;
                 }
                 else{
-                    outStrm.writeUTF("0;" + "Erro. Voo não adicionado!");
+                    outStrm.writeUTF("0;" + "Erro! Voo repetido.");
                 }
             }
             else {
-                outStrm.writeUTF("0;" + "Erro. Capacidade tem de ser um número!");
+                outStrm.writeUTF("0;" + "Erro! Capacidade tem de ser um número.");
             }
         }
     }
@@ -219,26 +216,19 @@ public class ServerSocketHandler implements Runnable {
             input = inStrm.readUTF();
 
             if(verificaInt(input) && input.equals("1")){
-                if(true) {//reservaMap.encerrarDia();)
-                    outStrm.writeUTF("0;" + "Dia Encerrado!");
-                    communication = false;
-                }
-                else{
-                    outStrm.writeUTF("0;" + "Erro a encerrar o dia!");
-                }
+                reservaMap.encerrarDia();
+                outStrm.writeUTF("0;" + "Dia Encerrado!");
+                communication = false;
             }
             else {
                 if (input.equals("2")) {
                     communication = false;
                 }
                 else{
-                    outStrm.writeUTF("0;" + "Erro! Introduza um número.");
+                    outStrm.writeUTF("0;" + "Erro! Opcao incorrecta.");
                 }
             }
         }
-    }
-    private boolean verificaVoos(ArrayList<String> voos){ // Por fazer
-        return true;
     }
 
     private boolean verificaData(String data){

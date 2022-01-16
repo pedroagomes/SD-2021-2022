@@ -27,21 +27,26 @@ public class Cliente {
         while(communication){
             received = inStrm.readUTF().split(";");
 
-            if (!received[0].equals("0")) {
-                if (!received[0].equals("LogOff")) {
+            switch (received[0]) {
+                case "0":
+                    System.out.println(received[1]);
+                    break;
+                case "1":
+                    ListaVoos lVoos = ListaVoos.deserialize(inStrm);
+                    System.out.println(lVoos);
+                    break;
+                case "LogOff":
+                    communication = false;
+                    break;
+                default:
                     System.out.println(received[0]);
 
                     info = input.nextLine();
 
                     outStrm.writeUTF(info);
-                }
-                else {
-                    communication = false;
-                }
-            }
-            else {
-                System.out.println(received[1]);
+                    break;
             }
         }
+
     }
 }

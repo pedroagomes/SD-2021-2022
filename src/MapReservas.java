@@ -26,15 +26,6 @@ public class MapReservas {
         this.diaActual = diaInicial;
     }
 
-    public String diaActual2String(){
-        try{
-            lock.lock();
-            return diaActual.toString();
-        } finally {
-            lock.unlock();
-        }
-    }
-
     public void encerrarDia(){
         try{
             lock.lock();
@@ -44,10 +35,14 @@ public class MapReservas {
         }
     }
 
-    public void novoVoo(String oriDest, int maxCapacidade){
+    public boolean novoVoo(String oriDest, int maxCapacidade){
         try{
             lock.lock();
-            capacidades.add(oriDest, maxCapacidade);
+            if(!capacidades.contains(oriDest)) {
+                capacidades.add(oriDest, maxCapacidade);
+                return true;
+            }
+            return false;
         } finally {
             lock.unlock();
         }
@@ -57,17 +52,19 @@ public class MapReservas {
     public int fazerReserva(String user, ArrayList<String> escalas, LocalDate diaDe, LocalDate diaAte){
         try{
             lock.lock();
-            if(diaDe.compareTo(diaAte) <= 0)
-                if(diaAte.compareTo(this.diaActual) >= 0) {
-                    if(diaDe.compareTo(this.diaActual) < 0)
+            if(diaDe.compareTo(diaAte) <= 0) {
+                if (diaAte.compareTo(this.diaActual) >= 0) {
+                    if (diaDe.compareTo(this.diaActual) < 0) {
                         diaDe = diaActual.plusDays(0);
-                    while(diaDe.compareTo(diaAte) <= 0){
-                        if(capacidades.verificaCapacidades(escalas, diaDe))
+                    }
+                    while (diaDe.compareTo(diaAte) <= 0) {
+                        if (capacidades.verificaCapacidades(escalas, diaDe)) {
                             break;
+                        }
                         diaDe = diaDe.plusDays(1);
                     }
-                    if(diaDe.compareTo(diaAte) > 0) {
-                        for (int i = 0; i < escalas.size() - 1; i++) {
+                    if (diaDe.compareTo(diaAte) <= 0) {
+                        for(int i = 0; i < escalas.size() - 1; i++) {
                             String oriDest = escalas.get(i) + '-' + escalas.get(i + 1);
                             capacidades.get(oriDest).get(diaDe).incrementa();
                         }
@@ -75,6 +72,7 @@ public class MapReservas {
                         return contador++;
                     }
                 }
+            }
             return -1;
         } finally {
             lock.unlock();
@@ -93,6 +91,8 @@ public class MapReservas {
                             String oriDest = aeroportos.get(i)+'-'+aeroportos.get(i+1);
                             capacidades.get(oriDest).get(reserva.getDia()).decrementa();
                         }
+                        reservas.remove(codigo);
+                        return true;
                     }
             return false;
         } finally {
@@ -102,7 +102,7 @@ public class MapReservas {
 
     public String toString(){
         try {
-            lock.unlock();
+            lock.lock();
             StringBuilder strBldr = new StringBuilder();
             strBldr.append("{"+contador+";"+diaActual.toString()+";\n"+reservas.toString()+"\n\n"+capacidades.toString()+"}");
 

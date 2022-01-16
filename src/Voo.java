@@ -27,4 +27,20 @@ public class Voo {
         Voo voo = new Voo(origem,destino,capacidade);
         return voo;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append(this.origem+" -> "+this.destino+" - "+this.capacidade_Maxima);
+
+        return str.toString();
+    }
+
+    public String getOrigem() {
+        return this.origem;
+    }
+
+    public String getDestino() {
+        return this.destino;
+    }
 }

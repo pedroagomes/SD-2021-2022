@@ -54,7 +54,7 @@ public class Capacidade {
 
     public String toString(){
         try {
-            lock.unlock();
+            lock.lock();
             StringBuilder strBldr = new StringBuilder();
             strBldr.append("{"+this.dia.toString()+";"+this.capacidade+"/"+this.maxCapacidade+"}");
 

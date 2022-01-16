@@ -47,7 +47,7 @@ public class MapCapacidades {
 
     public String toString(){
         try {
-            lock.unlock();
+            lock.lock();
             StringBuilder strBldr = new StringBuilder();
             strBldr.append("{\n");
             for(String oriDest : capacidades.keySet()){
@@ -57,6 +57,15 @@ public class MapCapacidades {
             strBldr.append("\n}");
 
             return strBldr.toString();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public boolean contains(String oriDest) {
+        try {
+            lock.lock();
+            return this.capacidades.containsKey(oriDest);
         } finally {
             lock.unlock();
         }
