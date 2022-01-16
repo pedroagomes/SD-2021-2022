@@ -36,16 +36,11 @@ public class MapReservas {
     }
 
     public boolean novoVoo(String oriDest, int maxCapacidade){
-        try{
-            lock.lock();
-            if(!capacidades.contains(oriDest)) {
-                capacidades.add(oriDest, maxCapacidade);
-                return true;
-            }
-            return false;
-        } finally {
-            lock.unlock();
+        if(!capacidades.contains(oriDest)) {
+            capacidades.add(oriDest, maxCapacidade);
+            return true;
         }
+        return false;
     }
 
     //o ArrayList escalas tem de ser verificado antes de ser passado a este metodo, para ver se existem os voos

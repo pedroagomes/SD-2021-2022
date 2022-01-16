@@ -32,17 +32,12 @@ public class MapCapacidades {
     }
 
     public boolean verificaCapacidades(ArrayList<String> escalas, LocalDate dia){
-        try {
-            lock.lock();
             for(int i = 0; i < escalas.size() - 1; i++){
                 String oriDest = escalas.get(i) + '-' + escalas.get(i + 1);
                 if(this.get(oriDest).get(dia).isFull())
                     return false;
             }
             return true;
-        } finally {
-            lock.unlock();
-        }
     }
 
     public String toString(){
